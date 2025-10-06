@@ -4,7 +4,14 @@
   --background: #ffffff;
   --foreground: #171717;
 }
-
+@theme {
+  --color-chocolate: #7b3e19;
+  --color-goldenDark: #c7ae6a;
+  --color-goldenLight: #b99a45;
+  --color-sandDark: #d5c28f;
+  --color-sandLight: #e3d6b4;
+  --color-cocoBlack: #1a1a1a;
+}
 :root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
