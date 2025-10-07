@@ -1,19 +1,26 @@
-import React from "react";
-import { login } from "@/app/(auth)/signup/actions";
-function LoginForm() {
+// app/(auth)/login/LoginForm.tsx
+"use client";
+
+import * as React from "react";
+import { useActionState } from "react";
+import { loginAction } from "@/app/(auth)/actions";
+
+const initialState = { ok: false, message: undefined as string | undefined };
+
+export default function LoginForm() {
+  const [state, formAction] = useActionState(loginAction, initialState);
+
   return (
     <div>
-      {" "}
-      <form>
+      <form action={formAction}>
         <label htmlFor="email">Email:</label>
         <input id="email" name="email" type="email" required />
         <label htmlFor="password">Password:</label>
         <input id="password" name="password" type="password" required />
-        <button formAction={login}>Sign up</button>
+        <button type="submit">Log in</button>
       </form>
-      m
+
+      {!!state.message && <p style={{ color: "red" }}>{state.message}</p>}
     </div>
   );
 }
-
-export default LoginForm;
