@@ -100,3 +100,11 @@ export async function signupAction(_: AuthState, formData: FormData): Promise<Au
   revalidatePath("/", "layout");
   redirect("/"); // or '/' if you prefer
 }
+ export async function logoutAction() {
+   const supabase = await createClient();
+
+   await supabase.auth.signOut();
+
+   revalidatePath("/", "layout");
+   redirect("/login");
+ }
