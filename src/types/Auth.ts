@@ -15,4 +15,5 @@ export type AuthCode =
   | "rate_limited"
   | "session_expired"
   | "network"
-  | "unknown";
+  | "unknown"
+  | "sent"; 

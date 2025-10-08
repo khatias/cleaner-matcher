@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const PASSWORD_MAX = 72;
 
-const emailSchema = z
+export const emailSchema = z
   .string()
   .trim()
   .min(1, "Email is required")
