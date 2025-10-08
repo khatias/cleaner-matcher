@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useActionState } from "react";
-
+import FieldError from "./FieldError";
 import type { AuthState } from "@/app/(auth)/actions";
 import { signupAction } from "@/app/(auth)/actions";
 import AuthSubmitButton from "./AuthSubmitButton";
@@ -12,17 +12,6 @@ const initialState: AuthState = {
   fieldErrors: undefined,
   values: undefined,
 };
-
-
-
-function FieldError({ id, msg }: { id: string; msg?: string }) {
-  if (!msg) return null;
-  return (
-    <small id={id} style={{ color: "crimson", display: "block", marginTop: 4 }}>
-      {msg}
-    </small>
-  );
-}
 
 export default function SignUpForm() {
   const [state, formAction] = useActionState<AuthState, FormData>(
