@@ -16,6 +16,7 @@ export async function forgotAction(
   _state: AuthState,
   formData: FormData
 ): Promise<AuthState> {
+  
   const email = String(formData.get("email") ?? "");
 
   const parsed = emailSchema.safeParse(email);
@@ -36,7 +37,7 @@ export async function forgotAction(
     const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
       redirectTo: `${
         process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-      }`,
+      }/reset-password`,
     });
 
     const code = error
