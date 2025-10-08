@@ -3,8 +3,8 @@
 import * as React from "react";
 import { useActionState } from "react";
 import FieldError from "./FieldError";
-import type { AuthState } from "@/app/(auth)/actions";
-import { signupAction } from "@/app/(auth)/actions";
+import type { AuthState } from "@/types/Auth";
+import { signupAction } from "@/app/(auth)/signup/action";
 import AuthSubmitButton from "./AuthSubmitButton";
 const initialState: AuthState = {
   ok: false,

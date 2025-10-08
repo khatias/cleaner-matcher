@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import { useActionState } from "react";
-import { loginAction } from "@/app/(auth)/actions";
+import { loginAction } from "@/app/(auth)/login/action";
 
 const initialState = { ok: false, message: undefined as string | undefined };
 
