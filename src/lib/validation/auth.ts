@@ -6,9 +6,9 @@ const emailSchema = z
   .string()
   .trim()
   .min(1, "Email is required")
-  .email("Invalid email address")
+  .toLowerCase()
   .max(254, "Email is too long")
-  .toLowerCase();
+  .pipe(z.email({ message: "Invalid email address" }));
 
 const fullNameSchema = z
   .string()
