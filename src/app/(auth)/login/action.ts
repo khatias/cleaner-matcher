@@ -1,11 +1,10 @@
 "use server";
 import { AuthState } from "@/types/Auth";
-
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
 import { loginSchema } from "@/lib/validation/auth";
-
+import { mapSupabaseErrorToCode, userMessageFor } from "@/utils/auth/auth-errors";
 import { extractFlatErrors, summarize } from "@/utils/zod/zod";
 export async function loginAction(
   _: AuthState,
@@ -36,19 +35,14 @@ export async function loginAction(
       password,
     });
 
-    if (error) {
-      return {
-        ok: false,
-        message: "Invalid credentials.",
-        code: "invalid_credentials",
-      };
+  if (error) {
+      const { status, message } = error as { status: number; message: string };
+      const code = mapSupabaseErrorToCode(status, message);
+      return { ok: false, code, message: userMessageFor("login", code), values: { email: raw.email } };
     }
   } catch {
-    return {
-      ok: false,
-      message: "Unable to sign in right now. Please try again.",
-      code: "network",
-    };
+    return { ok: false, code: "network", message: userMessageFor("login", "network"), values: { email: raw.email } };
+
   }
 
   revalidatePath("/", "layout");

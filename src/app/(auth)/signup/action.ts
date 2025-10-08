@@ -5,6 +5,10 @@ import { createClient } from "@/utils/supabase/server";
 import { signUpSchema } from "@/lib/validation/auth";
 import { headers } from "next/headers";
 import { extractFlatErrors, summarize } from "@/utils/zod/zod";
+import {
+  mapSupabaseErrorToCode,
+  userMessageFor,
+} from "@/utils/auth/auth-errors";
 import { AuthState } from "@/types/Auth";
 
 async function getBaseUrl() {
@@ -48,20 +52,31 @@ export async function signupAction(
       },
     });
 
-    if (error)
+    if (error) {
+      const code = mapSupabaseErrorToCode(
+        (error as { status?: number; message: string }).status,
+        error.message
+      );
       return {
         ok: false,
-        message: "Could not create account. Try again.",
-        code: "signup_failed",
+        code,
+        message: userMessageFor("signup", code),
+        values: { email: raw.email, full_name: raw.full_name },
       };
+    }
   } catch {
     return {
       ok: false,
-      message: "Sign up is unavailable right now. Try again later.",
       code: "network",
+      message: userMessageFor("signup", "network"),
+      values: { email: raw.email, full_name: raw.full_name },
     };
   }
 
   revalidatePath("/", "layout");
-  return { ok: true, message: "Check your email to verify your account." };
+  return {
+    ok: true,
+    message:
+      "Check your email for a verification link. If you don't receive one, you may already be registered—try resetting your password.",
+  };
 }
