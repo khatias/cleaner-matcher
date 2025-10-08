@@ -1,62 +1,16 @@
-// 'use server'
 
-// import { revalidatePath } from 'next/cache'
-// import { redirect } from 'next/navigation'
-
-// import { createClient } from '@/utils/supabase/server'
-
-// export async function login(formData: FormData) {
-//   const supabase = await createClient()
-
-//   // type-casting here for convenience
-  
-    
-//   // in practice, you should validate your inputs
-
-
-//   const data = {
-//     email: formData.get('email') as string,
-//     password: formData.get('password') as string,
-//   }
-
-//   const { error } = await supabase.auth.signInWithPassword(data)
-
-//   if (error) {
-//     return error.message
-//   }
-
-//   revalidatePath('/', 'layout')
-//   redirect('/')
-// }
-
-// export async function signup(formData: FormData) {
-//   const supabase = await createClient()
-
-//   // type-casting here for convenience
-//   // in practice, you should validate your inputs
-//   const data = {
-//     email: formData.get('email') as string,
-//     password: formData.get('password') as string,
-//   }
-
-//   const { error } = await supabase.auth.signUp(data)
-
-//   if (error) {
-//    return error.message
-//   }
-
-//   revalidatePath('/', 'layout')
-//   redirect('/')
-// }
-
-// app/(auth)/actions.ts
 'use server';
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
-
-type AuthState = { ok: boolean; message?: string };
+import { signUpSchema } from "@/lib/validation/auth";
+export type AuthState = {
+  ok: boolean;
+  message?: string;
+  fieldErrors?: Partial<Record<string, string[]>>;
+  values?: Partial<{ email: string; full_name: string }>;
+};
 
 export async function loginAction(_: AuthState, formData: FormData): Promise<AuthState> {
   const supabase = await createClient();
@@ -76,35 +30,48 @@ export async function loginAction(_: AuthState, formData: FormData): Promise<Aut
   redirect("/");
 }
 
-export async function signupAction(_: AuthState, formData: FormData): Promise<AuthState> {
-  const supabase =  await createClient();
+export async function signupAction(
+  _prevState: AuthState,
+  formData: FormData
+): Promise<AuthState> {
+  // Gather values
+  const raw = {
+    email: (formData.get("email") ?? "").toString(),
+    full_name: (formData.get("full_name") ?? "").toString(),
+    password: (formData.get("password") ?? "").toString(),
+    confirm_password: (formData.get("confirm_password") ?? "").toString(),
+  };
 
-  const email = (formData.get("email") ?? "").toString().trim();
-  const password = (formData.get("password") ?? "").toString();
+  // Zod validation
+  const parsed = signUpSchema.safeParse(raw);
+  if (!parsed.success) {
+    const { fieldErrors, formErrors } = parsed.error.flatten();
+    // Don’t echo passwords back; only keep safe fields
+    return {
+      ok: false,
+      message: formErrors?.[0] ?? "Please fix the errors and try again.",
+      fieldErrors,
+      values: { email: raw.email, full_name: raw.full_name },
+    };
+  }
 
-  if (!email || !password) return { ok: false, message: "Email and password are required." };
-
-  // Redirect new users to your confirm route after email verification mail is sent
+  // If valid, create the user (example with Supabase)
+  const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
-    email,
-    password,
+    email: parsed.data.email,
+    password: parsed.data.password,
     options: {
-      // change to your domain/route
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/confirm`,
+      data: { full_name: parsed.data.full_name },
     },
   });
 
-  if (error) return { ok: false, message: "Could not create account." };
+  if (error) {
+    // Map provider error to a safe message
+    return { ok: false, message: "Could not create account. Try again." };
+  }
 
-  // You might show “check your email” instead of redirecting home
+  // success UI choice: show message or redirect
   revalidatePath("/", "layout");
-  redirect("/"); // or '/' if you prefer
+  return { ok: true, message: "Check your email to verify your account." };
 }
- export async function logoutAction() {
-   const supabase = await createClient();
-
-   await supabase.auth.signOut();
-
-   revalidatePath("/", "layout");
-   redirect("/login");
- }
