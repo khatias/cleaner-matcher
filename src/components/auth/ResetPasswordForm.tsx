@@ -5,7 +5,9 @@ import { useActionState } from "react";
 import type { AuthState } from "@/types/Auth";
 import { resetAction } from "@/app/(auth)/reset-password/action";
 import AuthSubmitButton from "./AuthSubmitButton";
-import FieldError from "./FieldError";
+import { Field } from "../UI/Field";
+import { LockClosedIcon } from "@heroicons/react/24/outline";
+
 const initialState: AuthState = {
   ok: false,
   message: undefined,
@@ -13,53 +15,82 @@ const initialState: AuthState = {
   values: undefined,
 };
 
-function ResetPasswordForm() {
-  const [state, formAction] = useActionState<AuthState, FormData>(resetAction, initialState);
+export default function ResetPasswordForm() {
+  const [state, formAction] = useActionState<AuthState, FormData>(
+    resetAction,
+    initialState
+  );
 
-const passErr = state.fieldErrors?.password?.[0];
+  const passErr = state.fieldErrors?.password?.[0];
   const confirmErr = state.fieldErrors?.confirm_password?.[0];
 
-
   return (
-    <div>
-      <form action={formAction} noValidate>
-        <label htmlFor="password">New Password</label>
-       <input
-          id="password"
+    <div className="w-full">
+      <form className="space-y-4" action={formAction} noValidate>
+        <Field
+          label="New password"
           name="password"
           type="password"
-          autoComplete="new-password"
-          aria-invalid={!!passErr}
-          aria-describedby={passErr ? "password-error" : undefined}
+          passwordToggle
+          placeholder="Enter a new password"
           required
+          leftIcon={<LockClosedIcon className="h-4 w-4" />}
+          error={passErr}
+          aria-invalid={Boolean(passErr) || undefined}
+          aria-describedby={passErr ? "password-error" : undefined}
+          autoComplete="new-password"
+          id="password"
         />
-        <FieldError id="password-error" msg={passErr} />
 
-
-        <label htmlFor="confirm_password">Confirm New Password</label>
-       <input
-          id="confirm_password"
+        <Field
+          label="Confirm new password"
           name="confirm_password"
           type="password"
-          autoComplete="new-password"
-          aria-invalid={!!confirmErr}
-          aria-describedby={confirmErr ? "confirm-password-error" : undefined}
+          passwordToggle
+          placeholder="Re-enter your new password"
           required
+          leftIcon={<LockClosedIcon className="h-4 w-4" />}
+          error={confirmErr}
+          aria-invalid={Boolean(confirmErr) || undefined}
+          aria-describedby={confirmErr ? "confirm-password-error" : undefined}
+          autoComplete="new-password"
+          id="confirm_password"
         />
-        <FieldError id="confirm-error" msg={confirmErr} />
 
-        <div><AuthSubmitButton /></div>
+        <div className="pt-1 flex justify-center">
+          <AuthSubmitButton />
+        </div>
+
+        {/* Links row */}
+        <div className="flex items-center justify-between text-xs text-gray-700">
+          <a
+            href="/login"
+            className="font-medium text-[var(--color-cocoBlack,#1a1a1a)] hover:underline"
+          >
+            Back to login
+          </a>
+          <a
+            href="/forgot-password"
+            className="text-[#d5c28f] hover:underline"
+          >
+            Send a new reset link
+          </a>
+        </div>
       </form>
+
       {!!state.message && (
-        <p
+        <div
           role="status"
-          style={{ color: state.ok ? "green" : "red", marginTop: 12 }}
+          aria-live="polite"
+          className={`mt-4 rounded-md border px-3 py-2 text-sm ${
+            state.ok
+              ? "bg-green-50 text-green-700 border-green-200"
+              : "bg-red-50 text-red-600 border-red-200"
+          }`}
         >
           {state.message}
-        </p>
+        </div>
       )}
     </div>
   );
 }
-
-export default ResetPasswordForm;
