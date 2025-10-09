@@ -9,12 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.74.0",
     "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "stripe": "^19.1.0",
+    "styled-components": "^6.1.19",
     "zod": "^4.1.12"
   },
   "devDependencies": {

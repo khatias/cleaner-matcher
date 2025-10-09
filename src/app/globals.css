@@ -11,6 +11,8 @@
   --color-sandDark: #d5c28f;
   --color-sandLight: #e3d6b4;
   --color-cocoBlack: #1a1a1a;
+  --color-customGray: #9ca3af;
+  --color-custombg: #faf9f6;
 }
 :root {
   --color-background: var(--background);
