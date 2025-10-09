@@ -2,10 +2,13 @@
 
 import * as React from "react";
 import { useActionState } from "react";
-import FieldError from "./FieldError";
 import type { AuthState } from "@/types/Auth";
 import { signupAction } from "@/app/(auth)/signup/action";
 import AuthSubmitButton from "./AuthSubmitButton";
+import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
+import { Field } from "../UI/Field";
+import Link from "next/link";
+
 const initialState: AuthState = {
   ok: false,
   message: undefined,
@@ -25,69 +28,106 @@ export default function SignUpForm() {
   const confirmErr = state.fieldErrors?.confirm_password?.[0];
 
   return (
-    <div>
-      <form action={formAction} noValidate>
-        <label htmlFor="email">Email:</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          defaultValue={state.values?.email ?? ""}
-          aria-invalid={!!emailErr}
-          aria-describedby={emailErr ? "email-error" : undefined}
-          required
-        />
-        <FieldError id="email-error" msg={emailErr} />
-
-        <label htmlFor="full_name">Full Name:</label>
-        <input
-          id="full_name"
+    <div className="w-full">
+      <form className="space-y-5" action={formAction} noValidate>
+        <Field
+          label="Full Name"
           name="full_name"
           type="text"
-          defaultValue={state.values?.full_name ?? ""}
-          aria-invalid={!!nameErr}
-          aria-describedby={nameErr ? "full-name-error" : undefined}
+          placeholder="John Doe"
           required
+          defaultValue={state.values?.full_name ?? ""}
+          error={nameErr}
+          aria-invalid={Boolean(nameErr) || undefined}
+          aria-describedby={nameErr ? "full-name-error" : undefined}
+          autoComplete="name"
+          id="full_name"
         />
-        <FieldError id="full-name-error" msg={nameErr} />
 
-        <label htmlFor="password">Password:</label>
-        <input
-          id="password"
+        <Field
+          label="Email"
+          name="email"
+          type="email"
+          placeholder="you@example.com"
+          required
+          defaultValue={state.values?.email ?? ""}
+          leftIcon={<EnvelopeIcon className="h-4 w-4" />}
+          error={emailErr}
+          aria-invalid={Boolean(emailErr) || undefined}
+          aria-describedby={emailErr ? "email-error" : undefined}
+          autoComplete="email"
+          id="email"
+        />
+
+        <Field
+          label="Password"
           name="password"
           type="password"
-          autoComplete="new-password"
-          aria-invalid={!!passErr}
-          aria-describedby={passErr ? "password-error" : undefined}
+          passwordToggle
+          placeholder="Your password"
           required
+          leftIcon={<LockClosedIcon className="h-4 w-4" />}
+          error={passErr}
+          aria-invalid={Boolean(passErr) || undefined}
+          aria-describedby={passErr ? "password-error" : undefined}
+          autoComplete="new-password"
+          id="password"
         />
-        <FieldError id="password-error" msg={passErr} />
 
-        <label htmlFor="confirm_password">Confirm Password:</label>
-        <input
-          id="confirm_password"
+        <Field
+          label="Confirm New Password"
           name="confirm_password"
           type="password"
-          autoComplete="new-password"
-          aria-invalid={!!confirmErr}
-          aria-describedby={confirmErr ? "confirm-password-error" : undefined}
+          passwordToggle
+          placeholder="Re-enter your new password"
           required
+          leftIcon={<LockClosedIcon className="h-4 w-4" />}
+          error={confirmErr}
+          aria-invalid={Boolean(confirmErr) || undefined}
+          aria-describedby={confirmErr ? "confirm-password-error" : undefined}
+          autoComplete="new-password"
+          id="confirm_password"
         />
-        <FieldError id="confirm-password-error" msg={confirmErr} />
 
-        <div style={{ marginTop: 12 }}>
+        <div className="pt-1 flex justify-center">
           <AuthSubmitButton />
+        </div>
+
+        <div className="flex items-center justify-center text-sm text-gray-600 pt-1">
+          <p>
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="font-semibold text-[var(--color-cocoBlack,#1a1a1a)] hover:underline"
+            >
+              Log in
+            </Link>
+          </p>
         </div>
       </form>
 
       {!!state.message && (
         <p
           role="status"
-          style={{ color: state.ok ? "green" : "red", marginTop: 12 }}
+          className={`mt-3 text-sm ${
+            state.ok ? "text-green-600" : "text-red-500"
+          }`}
         >
           {state.message}
         </p>
       )}
+
+      <p className="mt-8 text-xs text-gray-500 text-center leading-relaxed">
+        By creating an account, you agree to our{" "}
+        <Link href="/privacy" className="text-[#d5c28f] hover:underline font-semibold">
+          Privacy Policy
+        </Link>{" "}
+        and{" "}
+        <Link href="/terms" className="text-[#d5c28f] hover:underline font-semibold">
+          Terms of Service
+        </Link>
+        .
+      </p>
     </div>
   );
 }
